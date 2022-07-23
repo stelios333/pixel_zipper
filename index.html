@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html>
+<!-- Powered by Stelios333 Mandarinis 2021. The project is under the MIT License.
+
+Copyright (c) 2021 Stelios333
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+-->
+<head>
+    <title> Pixel zipper </title>
+    <link rel='icon' type='image/png' href='https://github.com/stelios333/ola/blob/master/favicon.png?raw=true'>
+    <link rel='shortcut icon' type='image/vnd.microsoft.icon' href='https://raw.githubusercontent.com/stelios333/ola/master/favicon.ico'>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, Helvetica, sans-serif;
+            background-image: linear-gradient(to bottom right, rgba(241, 255, 240, 0), rgba(232, 232, 255, 1), rgba(255, 255, 230, 1));
+        }
+
+        .container {
+            font-family: Arial, Helvetica, sans-serif;
+            text-align: center;
+            margin: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .tab-buttons {
+            text-align: left;
+        }
+
+        .tab-button {
+            padding: 8px 12px;
+            background: #555;
+            margin: 0px;
+            border: 1px solid rgb(30, 144, 255);
+            border-bottom: none;
+            color: white;
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+            transition: 0.1s;
+        }
+
+        .tab-button:hover {
+            background: #444;
+        }
+
+        .clicked {
+            background: #333;
+            transform: scale(1.1, 1.1) translate(0%, -2%);
+        }
+
+        .content {
+            border-top: 1px solid rgb(30, 144, 255);
+            width: 100%;
+            text-align: center;
+        }
+
+        .tab-container {
+            max-width: 500px;
+            margin: auto;
+        }
+
+        .download-button {
+            padding: 5px 18px;
+            font-size: 19px;
+            color: rgb(30, 144, 255);
+            border: none;
+            border-radius: 5px;
+            background: #222;
+            position: relative;
+            overflow: hidden;
+            transition: 0.1s;
+            margin: 4px;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+            display: none;
+            animation: show 0.4s ease;
+        }
+
+        .download-button:hover {
+            background: #333;
+        }
+
+        .ripple-button {
+            user-select: none;
+            padding: 8px 18px;
+            font-size: 16px;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            background: #222;
+            position: relative;
+            overflow: hidden;
+            transition: 0.1s;
+            margin: 4px;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+            animation: show 0.4s ease;
+        }
+
+        .ripple-button:hover {
+            background: #333;
+        }
+
+        button .ripple {
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.7);
+            position: absolute;
+            transform: scale(0);
+            animation: ripple 0.4s linear;
+        }
+
+        .blue {
+            color: rgb(30, 144, 255);
+            font-size: 18px;
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            width: 90%;
+            margin-top: 8px;
+            margin-bottom: 8px;
+            height: 5px;
+            border-radius: 7px;
+            background: #d3d3d3;
+            outline: none;
+            opacity: 0.8;
+            -webkit-transition: .2s;
+            transition: opacity .2s;
+        }
+
+        .slider:hover {
+            opacity: 1;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12.5px;
+            height: 25px;
+            border-radius: 12.5px;
+            background: rgb(30, 144, 255);
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            border: none;
+            width: 12.5px;
+            height: 25px;
+            border-radius: 12.5px;
+            background: rgb(30, 144, 255);
+            cursor: pointer;
+        }
+
+        #myCanvas {
+            margin: 0px;
+        }
+
+        #size {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .file-info {
+            border-left: 2px solid #ffb700;
+            padding-left: 8px;
+            text-align: left;
+            width: 50%;
+        }
+
+        td {
+            vertical-align: top;
+        }
+
+        .img-info {
+            margin-bottom: 1px;
+        }
+
+        .fsplit {
+            margin-top: 1px;
+            margin-bottom: 20px;
+        }
+
+        .canvas-container {
+            width: 100%;
+            padding-top: 8px;
+            padding-bottom: 8px;
+            background-color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: auto;
+            overflow: scroll;
+            scrollbar-color: #333;
+        }
+
+        .input-container {
+            width: 100%;
+            padding-top: 8px;
+            background-color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 0px;
+            margin-bottom: 0px;
+            color: white;
+            animation: inputshow 0.4s linear;
+            display: none;
+        }
+
+        .ie-detected {
+            background: #333;
+            position: absolute;
+            top: 0%;
+            left: 0%;
+            translate: transform(-50%, -50%);
+            display: block;
+            width: 100%;
+            height: 100%
+        }
+
+
+        .ie-icon-container {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 10px;
+            color: #20bcec;
+            font-size: 200px;
+        }
+
+        .ie-message {
+            color: #fff;
+            font-size: 25px;
+            vertical-align: middle;
+            font-family: Arial, Helvetica, sans-serif;
+            text-align: center;
+            height: 100vh;
+        }
+
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none;
+            transition: 0.3s;
+        }
+        /* Modified version of https://codepen.io/jczimm/pen/vEBpoL */
+        .loader {
+            margin: 0 auto;
+            width: 90px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .loader:before {
+            content: "";
+            display: block;
+        }
+
+        .circular {
+            -webkit-animation: rotate 2s linear infinite;
+            animation: rotate 2s linear infinite;
+            height: 100%;
+            transform-origin: center center;
+            width: 100%;
+        }
+
+        .path {
+            stroke-dasharray: 1, 200;
+            stroke-dashoffset: 0;
+            -webkit-animation: dash 1.5s ease-in-out infinite;
+            animation: dash 1.5s ease-in-out infinite;
+            stroke: rgb(30, 144, 255);
+            stroke-linecap: round;
+        }
+        /**/
+        .loading-error {
+            display: none;
+            text-align: center;
+            font-size: 25px;
+            font-family: Arial, Helvetica, sans-serif;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+        }
+        .author-info {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            margin: 0;
+            background-color: #444;       
+            text-align: center;
+            padding: 8px 8px;
+            color: white;
+        }
+        /*https://codepen.io/jczimm/pen/vEBpoL*/
+        @-webkit-keyframes rotate {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes rotate {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @-webkit-keyframes dash {
+            0% {
+                stroke-dasharray: 1, 200;
+                stroke-dashoffset: 0;
+            }
+
+            50% {
+                stroke-dasharray: 89, 200;
+                stroke-dashoffset: -35px;
+            }
+
+            100% {
+                stroke-dasharray: 89, 200;
+                stroke-dashoffset: -124px;
+            }
+        }
+
+        @keyframes dash {
+            0% {
+                stroke-dasharray: 1, 200;
+                stroke-dashoffset: 0;
+            }
+
+            50% {
+                stroke-dasharray: 89, 200;
+                stroke-dashoffset: -35px;
+            }
+
+            100% {
+                stroke-dasharray: 89, 200;
+                stroke-dashoffset: -124px;
+            }
+        }
+        /**/
+        @keyframes ripple {
+            to {
+                transform: scale(2.5);
+                opacity: 0;
+            }
+        }
+
+        @keyframes show {
+            from {
+                opacity: 0;
+                transform: scale(0, 0);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1, 1);
+            }
+        }
+
+        @keyframes inputshow {
+            from {
+                opacity: 0;
+                transform: scale(1, 0);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1, 1);
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.15.4/css/all.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>An algorithm for compressing images, ideal for images with gradients</h1>
+        <hr>
+        <button onclick='open_custom_file()' class="ripple-button"><span>Upload image <i class="fad fa-arrow-circle-up blue"></i></span></button>
+
+        <table style="width:100%">
+            <tr>
+                <td>
+                    <div class="tab-container">
+                        <div class="tab-buttons">
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button id="original" class="tab-button clicked">Oringinal</button><button class="tab-button">Compressed</button>
+                        </div>
+                        <div class="content">
+                            <div id="inputc" class="input-container">
+                                Compression level:<input id="ratio_range" type="range" value=17 min=2 max=255 class="slider">
+                            </div>
+                            <div class="canvas-container">
+                                <canvas id=myCanvas width=500 height=300 style="background-color: #333;"> </canvas>
+                            </div>
+                            <button title="Download" link="" id="download_btn" class="download-button"><i class="fad fa-arrow-circle-down"></i></button>
+                        </div>
+                    </div>
+                </td>
+                <td class="file-info">
+                    <h3 class="img-info">Image info</h3>
+                    <hr class="fsplit">
+                    <div id="file-name"><b>File name: </b><span id="fname">demo.png</span></div>
+                    <div id="file-size"><b>Original file size: </b><span id="fsize">253KB</span></div>
+                    <div id="file-com_size"><b>Compressed file size: </b><span id="fcomsize">84.5KB</span></div>
+                    <div id="file-ratio"><b>Ratio: </b><span id="fratio">33%</span></div>
+                </td>
+            </tr>
+        </table>
+
+    </div>
+    <div id="ie_detected" class="ie-detected">
+        <table style="width:100%">
+            <tr>
+                <td class="ie-message">
+                    <div class="ie-icon-container">
+                        <i class="fab fa-internet-explorer"></i>
+                    </div>
+                    Internet Explorer <b>is not supported</b> anymore.<br>
+                    Please use an updated version of Google Chrome, Edge Chromium or Mozilla Firefox.
+                </td>
+            </tr>
+
+        </table>
+    </div>
+    <div id="loading_modal" class="loading">
+        <div class="loader" id="loader">
+            <svg class="circular" viewBox="25 25 50 50">
+                <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="3" stroke-miterlimit="10" />
+            </svg>
+        </div>
+        <div class="loading-error" id="load_error">
+            Page loading time timed out. <br>Please check your internet connection and then try again.
+            <br>
+            <br>
+            <button type="button" id="try_again" class="ripple-button"><span>Try again <i class="far fa-redo"></i></span></button>
+        </div>
+    </div>
+    <div class="author-info">
+        <b>Pixel Zipper v0.2</b>
+        <br>
+        Powered by Stelios333 2021-2022. This project is under the MIT License.
+    </div>
+    <script>
+        var isfirstload = 0
+        var tablinks = document.getElementsByClassName("tab-button");
+        var imgname = "demo.png";
+        var isIE = window.document.documentMode ? true : false;
+        if (!isIE) {
+            document.getElementById("ie_detected").style.display = "none";
+            document.getElementById("loading_modal").style.display = "block";
+            setTimeout(function() {
+                document.getElementById("loader").style.display = "none";
+                document.getElementById("load_error").style.display = "block";
+            }, 5000)
+        } else {
+            document.body.style.overflow = "hidden";
+        }
+        
+        function bytes_to_kb_str(size) {
+            var num = Math.round((size / 1024) * 10) / 10;
+            return String(num.toFixed(1)) + "KB";
+        }
+        var imgsize = 253 * 1024
+        document.getElementById("ratio_range").oninput = function(e) {
+            compress_image(img, Number(this.value));
+        }
+
+        function open_custom_file() {
+            var i = document.createElement("input")
+            i.type = "file"
+            i.accept = "image/jpeg,image/png,image/bmp"
+            i.value = ""
+            i.onchange = function(e) {
+
+                if (this.files[0].size / 1024 / 1024 < 1) {
+                    if (this.files[0].type == "image/jpeg" || this.files[0].type == "image/bmp" || this.files[0].type == "image/png") {
+                        var url = URL.createObjectURL(this.files[0])
+                        img.src = url
+                        document.getElementById("fname").innerHTML = this.files[0].name
+                        document.getElementById("fsize").innerHTML = bytes_to_kb_str(this.files[0].size)
+                        imgsize = this.files[0].size
+                        imgname = this.files[0].name
+                        document.getElementById("fcomsize").innerHTML = "Click \"Compressed\" tab to see."
+                        document.getElementById("fratio").innerHTML = "Click \"Compressed\" tab to see."
+                    } else {
+                        alert("Image type unknown or unsupported.\nSupported file types: .png .jpg .jpeg .bmp .jfif")
+                    }
+
+                } else {
+                    alert("Too large file. Maximum file size allowed is 1MB.")
+                }
+
+            }
+            i.click()
+        }
+
+        function openCity(evt, el) {
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" clicked", "");
+            }
+            evt.currentTarget.className += " clicked";
+            if (el == 0) {
+                original()
+                document.getElementById("download_btn").style.transition = "0.4s"
+                document.getElementById("download_btn").style.transform = "scale(0,0)"
+                document.getElementById("download_btn").style.opacity = "0"
+                setTimeout(function() {
+                    document.getElementById("download_btn").style.transition = "0.1s"
+                    document.getElementById("download_btn").style.display = "none"
+                    document.getElementById("download_btn").style.transform = "none"
+                    document.getElementById("download_btn").style.opacity = "1"
+                }, 400)
+                document.getElementById("inputc").style.transition = "0.4s"
+                document.getElementById("inputc").style.transform = "scale(1,0)"
+                document.getElementById("inputc").style.opacity = "0"
+                setTimeout(function() {
+                    document.getElementById("inputc").style.transition = "0.1s"
+                    document.getElementById("inputc").style.display = "none"
+                    document.getElementById("inputc").style.transform = "none"
+                    document.getElementById("inputc").style.opacity = "1"
+                }, 400)
+            } else if (el == 1) {
+                compress_image(img, 17)
+                document.getElementById("download_btn").style.display = "inline"
+                document.getElementById("inputc").style.display = "block"
+            }
+        }
+
+        for (i = 0; i < tablinks.length; i++) {
+            var num = i
+            tablinks[i].setAttribute("onclick", "openCity(event, " + num + ")")
+        }
+
+        var img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.src = 'https://media.istockphoto.com/photos/concept-of-an-open-magic-book-open-pages-with-water-and-land-and-picture-id1279460648?b=1&k=20&m=1279460648&s=170667a&w=0&h=uZa830sWo8hlFN0Y7FnQ14giNC0Z2EBNuTMuNJeJhQg=';
+
+        var canvas = document.getElementById('myCanvas');
+        var ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = false;
+        img.onload = function() {
+            if (isfirstload == 0) {
+                document.getElementById("loading_modal").style.opacity = "0"
+                setTimeout(function(){
+                    document.getElementById("loading_modal").style.display = "none";
+                    document.getElementById("loading_modal").style.opacity = "1"
+                    document.body.style.height = "100vh";
+                },300)
+                
+                isfirstload = 1
+            }
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            canvas.width = img.width
+            canvas.height = img.height
+            if (img.width > img.height) {
+                canvas.style.height = "auto"
+                canvas.style.width = (window.innerWidth / 3) + "px"
+            }
+            if (img.height > img.width) {
+                canvas.style.height = (window.innerHeight / 3) + "px"
+                canvas.style.width = "auto"
+            }
+            if (img.width == img.height) {
+                canvas.style.height = (window.innerHeight / 3) + "px"
+                canvas.style.width = (window.innerHeight / 3) + "px"
+            }
+            ctx.drawImage(img, 0, canvas.height / 2 - img.height / 2);
+            document.getElementById("original").click()
+            document.getElementById("download_btn").setAttribute("link", "")
+            document.getElementById("ratio_range").value = 17
+        };
+
+        var original = function() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+            canvas.width = img.width
+            canvas.height = img.height
+            ctx.drawImage(img, 0, canvas.height / 2 - img.height / 2);
+        };
+
+
+
+        var compress_image = function(image, level) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+            canvas.width = img.width
+            canvas.height = img.height
+            ctx.drawImage(img, 0, canvas.height / 2 - img.height / 2);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            for (var i = 0; i < data.length; i += 4) {
+                data[i] = Math.round(data[i] / level) * level;
+                data[i + 1] = Math.round(data[i + 1] / level) * level;
+                data[i + 2] = Math.round(data[i + 2] / level) * level;
+            }
+            ctx.putImageData(imageData, 0, 0);
+            canvas.toBlob(function(blob) {
+                var url = URL.createObjectURL(blob);
+                document.getElementById("download_btn").setAttribute("link", url)
+                document.getElementById("fcomsize").innerHTML = bytes_to_kb_str(blob.size)
+                document.getElementById("fratio").innerHTML = String(Math.round((blob.size / imgsize) * 100)) + "%"
+            }, 'image/png', 1)
+        };
+        var download_buttons = document.getElementsByClassName('download-button');
+        var ripple_buttons = document.getElementsByClassName('ripple-button');
+        Array.prototype.forEach.call(download_buttons, function(b) {
+            b.addEventListener('mousedown', createRipple);
+        })
+        Array.prototype.forEach.call(ripple_buttons, function(b) {
+            b.addEventListener('mousedown', createRipple);
+        })
+        //https://css-tricks.com/how-to-recreate-the-ripple-effect-of-material-design-buttons/
+        function createRipple(e) {
+            if (this.getElementsByClassName('ripple').length > 0) {
+                this.removeChild(this.childNodes[1]);
+            }
+
+            var circle = document.createElement('div');
+            this.appendChild(circle);
+
+            var d = Math.max(this.clientWidth, this.clientHeight);
+            circle.style.width = circle.style.height = d + 'px';
+
+            circle.style.left = e.clientX - this.getBoundingClientRect().left - d / 2 + 'px';
+            circle.style.top = e.clientY - this.getBoundingClientRect().top - d / 2 + 'px';
+
+            circle.classList.add('ripple');
+        }
+        document.getElementById("download_btn").onclick = function() {
+            var link = document.createElement('a'),
+                url = document.getElementById("download_btn").getAttribute("link");
+            if (!link == "") {
+                var imgnamelist = imgname.split(".")
+                var downloadname = imgnamelist[0] += "_compressed.png"
+                link.download = downloadname
+                link.href = url
+                link.click()
+            }
+        }
+        document.getElementById("try_again").onclick = function() {
+            history.go(0)
+        }
+        window.onresize = function() {
+            if (img.width > img.height) {
+                canvas.style.height = "auto"
+                canvas.style.width = (window.innerWidth / 3) + "px"
+            }
+            if (img.height > img.width) {
+                canvas.style.height = (window.innerHeight / 3) + "px"
+                canvas.style.width = "auto"
+            }
+            if (img.width == img.height) {
+                canvas.style.height = (window.innerHeight / 3) + "px"
+                canvas.style.width = (window.innerHeight / 3) + "px"
+            }
+        }
+        
+    </script>
+
+</body>
+
+</html>
